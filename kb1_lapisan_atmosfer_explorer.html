@@ -1,0 +1,181 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.wrap{padding:1.5rem 1rem 2rem;max-width:700px;margin:auto}
+.header{text-align:center;margin-bottom:1.5rem}
+.header h1{font-size:20px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+.header p{font-size:13px;color:var(--color-text-secondary)}
+.main{display:grid;grid-template-columns:160px 1fr;gap:16px;align-items:start}
+.atmo-visual{position:relative;height:460px;border-radius:var(--border-radius-lg);overflow:hidden;cursor:pointer;border:0.5px solid var(--color-border-tertiary)}
+.layer{position:absolute;left:0;right:0;display:flex;align-items:center;justify-content:center;transition:all 0.2s;border-bottom:1px dashed rgba(255,255,255,0.15)}
+.layer span{font-size:11px;font-weight:500;writing-mode:horizontal-tb;color:rgba(255,255,255,0.9);text-align:center;padding:2px 4px;line-height:1.3}
+.layer.active{filter:brightness(1.2);box-shadow:inset 0 0 0 2px rgba(255,255,255,0.5)}
+.layer.active span{font-weight:700;color:#fff}
+.info-panel{display:flex;flex-direction:column;gap:12px}
+.layer-title{font-size:22px;font-weight:500;color:var(--color-text-primary);line-height:1.2}
+.layer-sub{font-size:13px;color:var(--color-text-secondary);margin-top:2px}
+.badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.stat{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px}
+.stat-label{font-size:11px;color:var(--color-text-secondary);margin-bottom:4px}
+.stat-val{font-size:15px;font-weight:500;color:var(--color-text-primary)}
+.desc-box{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px}
+.desc-box p{font-size:13px;color:var(--color-text-secondary);line-height:1.6}
+.fenomena-list{display:flex;flex-direction:column;gap:6px}
+.fenomena-item{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--color-text-secondary)}
+.fenomena-item i{font-size:15px;margin-top:1px;flex-shrink:0}
+.nav-hint{text-align:center;font-size:12px;color:var(--color-text-tertiary);margin-top:8px}
+.quiz-btn{width:100%;padding:10px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-primary);font-size:13px;cursor:pointer;margin-top:4px}
+.quiz-btn:hover{background:var(--color-background-secondary)}
+.altitude-bar{position:absolute;right:0;top:0;bottom:0;width:28px;background:rgba(0,0,0,0.2);display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:6px 0}
+.alt-label{font-size:9px;color:rgba(255,255,255,0.7);writing-mode:horizontal-tb}
+</style>
+
+<div class="wrap">
+<h2 class="sr-only">Media pembelajaran interaktif lapisan atmosfer bumi untuk kelas X geografi</h2>
+<div class="header">
+  <h1><i class="ti ti-world" aria-hidden="true"></i> Jelajah Lapisan Atmosfer Bumi</h1>
+  <p>Klik setiap lapisan untuk mempelajari karakteristiknya</p>
+</div>
+
+<div class="main">
+  <div>
+    <div class="atmo-visual" id="atmoVis">
+      <div class="altitude-bar">
+        <span class="alt-label">&gt;700 km</span>
+        <span class="alt-label">700 km</span>
+        <span class="alt-label">80 km</span>
+        <span class="alt-label">50 km</span>
+        <span class="alt-label">12 km</span>
+        <span class="alt-label">0 km</span>
+      </div>
+    </div>
+    <div class="nav-hint">↑↓ klik lapisan untuk detail</div>
+  </div>
+
+  <div class="info-panel" id="infoPanel"></div>
+</div>
+</div>
+
+<script>
+const layers=[
+  {
+    id:"eksosfer",
+    name:"Eksosfer",
+    alt:">700 km",
+    range:"700 km ke atas",
+    suhu:"−100°C hingga sangat tinggi",
+    tekanan:"Hampir nol",
+    color:"#0a1628",
+    height:"12%",
+    badges:[{label:"Terluar",bg:"#1e3a5f",tc:"#7eb3f0"},{label:"Satelit",bg:"#1a2d4a",tc:"#5fa0d8"}],
+    desc:"Lapisan terluar atmosfer yang berangsur-angsur bertransisi menjadi ruang angkasa hampa. Partikel gas sangat jarang dan bergerak bebas tanpa tabrakan.",
+    fenomena:["Orbit satelit buatan (GPS, cuaca, komunikasi)","Batas Kármán: garis resmi antariksa di 100 km","Partikel hidrogen dan helium mendominasi","Zona transisi ke ruang angkasa"]
+  },
+  {
+    id:"termosfer",
+    name:"Termosfer",
+    alt:"80–700 km",
+    range:"80 – 700 km",
+    suhu:"hingga 2.000°C",
+    tekanan:"Sangat rendah",
+    color:"#0d2344",
+    height:"18%",
+    badges:[{label:"Ionosfer",bg:"#1a3a6b",tc:"#6aabf7"},{label:"Aurora",bg:"#0f4a3a",tc:"#4fd9a0"}],
+    desc:"Lapisan dengan suhu sangat tinggi akibat penyerapan radiasi UV dan sinar-X matahari. Mengandung ionosfer yang memantulkan gelombang radio untuk komunikasi jarak jauh.",
+    fenomena:["Aurora borealis & australis (cahaya kutub)","Stasiun Luar Angkasa Internasional (ISS) mengorbit","Ionosfer memantulkan gelombang radio AM","Satelit cuaca dan militer beroperasi di sini"]
+  },
+  {
+    id:"mesosfer",
+    name:"Mesosfer",
+    alt:"50–80 km",
+    range:"50 – 80 km",
+    suhu:"−90°C (terdingin!)",
+    tekanan:"Rendah",
+    color:"#1a3a6e",
+    height:"14%",
+    badges:[{label:"Meteor terbakar",bg:"#3a2060",tc:"#c09af0"},{label:"Terdingin",bg:"#1a3060",tc:"#7eb0f0"}],
+    desc:"Lapisan paling dingin di atmosfer (hingga −90°C). Bertanggung jawab membakar sebagian besar meteorit yang memasuki atmosfer bumi sehingga tidak mencapai permukaan.",
+    fenomena:["Meteorit terbakar habis sebelum mencapai bumi","Lapisan paling dingin di seluruh atmosfer","Awan noctilucent (awan sangat tinggi dan bercahaya)","Suhu turun tajam seiring bertambahnya ketinggian"]
+  },
+  {
+    id:"stratosfer",
+    name:"Stratosfer",
+    alt:"12–50 km",
+    range:"12 – 50 km",
+    suhu:"−56°C hingga 0°C",
+    tekanan:"Rendah–sedang",
+    color:"#1e5c9e",
+    height:"24%",
+    badges:[{label:"Lapisan ozon",bg:"#0f4a2a",tc:"#4fd990"},{label:"Jalur pesawat",bg:"#0f3a60",tc:"#6aabf7"}],
+    desc:"Mengandung lapisan ozon yang menyerap 97–99% radiasi ultraviolet berbahaya dari matahari. Suhu justru naik seiring ketinggian karena penyerapan UV oleh ozon.",
+    fenomena:["Lapisan ozon (O₃) melindungi dari radiasi UV","Jalur penerbangan komersial internasional","Suhu naik seiring ketinggian (inversi suhu)","Balon cuaca dan pesawat mata-mata U2 beroperasi"]
+  },
+  {
+    id:"troposfer",
+    name:"Troposfer",
+    alt:"0–12 km",
+    range:"0 – 12 km",
+    suhu:"15°C hingga −56°C",
+    tekanan:"Normal–tinggi",
+    color:"#2e86de",
+    height:"32%",
+    badges:[{label:"Cuaca & iklim",bg:"#0a3d6b",tc:"#7eb3f0"},{label:"Kehidupan",bg:"#0a4a2a",tc:"#4fd9a0"}],
+    desc:"Lapisan terbawah dan terpadat yang menopang seluruh kehidupan. Semua fenomena cuaca — hujan, angin, awan, badai — terjadi di sini. Suhu turun ±6,5°C setiap naik 1 km.",
+    fenomena:["Seluruh fenomena cuaca: hujan, awan, angin, badai","Makhluk hidup tinggal dan bernapas di lapisan ini","Suhu turun 6,5°C setiap naik 1.000 meter","Tropopause: batas atas troposfer sekitar 12 km"]
+  }
+];
+
+const vis=document.getElementById("atmoVis");
+const panel=document.getElementById("infoPanel");
+let active=4;
+
+function buildVis(){
+  let top=0;
+  layers.forEach((l,i)=>{
+    const div=document.createElement("div");
+    div.className="layer"+(i===active?" active":"");
+    div.style.cssText=`top:${top}%;height:${l.height};left:0;right:28px;background:${l.color}`;
+    div.innerHTML=`<span>${l.name}<br><span style="font-size:9px;opacity:0.7">${l.alt}</span></span>`;
+    div.onclick=()=>select(i);
+    vis.appendChild(div);
+    top+=parseFloat(l.height);
+  });
+}
+
+function select(i){
+  active=i;
+  document.querySelectorAll(".layer").forEach((el,j)=>{
+    el.classList.toggle("active",j===i);
+  });
+  renderPanel();
+}
+
+function renderPanel(){
+  const l=layers[active];
+  const badgesHtml=l.badges.map(b=>`<span class="badge" style="background:${b.bg};color:${b.tc}">${b.label}</span>`).join("");
+  const fenomHtml=l.fenomena.map(f=>`<div class="fenomena-item"><i class="ti ti-point-filled" style="color:#4a9fd4" aria-hidden="true"></i><span>${f}</span></div>`).join("");
+  panel.innerHTML=`
+    <div>
+      <div class="layer-title">${l.name}</div>
+      <div class="layer-sub">Ketinggian: ${l.range}</div>
+      <div class="badges">${badgesHtml}</div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat"><div class="stat-label">Suhu</div><div class="stat-val" style="font-size:13px">${l.suhu}</div></div>
+      <div class="stat"><div class="stat-label">Tekanan Udara</div><div class="stat-val" style="font-size:13px">${l.tekanan}</div></div>
+    </div>
+    <div class="desc-box"><p>${l.desc}</p></div>
+    <div>
+      <div style="font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">Fenomena & Fakta</div>
+      <div class="fenomena-list">${fenomHtml}</div>
+    </div>
+    <button class="quiz-btn" onclick="sendPrompt('Berikan saya 3 soal kuis tentang lapisan ${l.name} beserta pembahasannya')"><i class="ti ti-help-circle" aria-hidden="true"></i> Kuis tentang ${l.name} ↗</button>
+  `;
+}
+
+buildVis();
+renderPanel();
+</script>
